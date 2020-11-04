@@ -13,6 +13,8 @@ namespace ReachUp
         public int Type { get; set; }
         public string UUID { get; set; }
         public Local LocalBeacon { get; set; }
+
+        public string TypeName {get; set; }
         #endregion
 
         #region Fields    
@@ -35,14 +37,25 @@ namespace ReachUp
   
         }
 
-        public Beacon(string uuid, int v) : this(uuid)
+        public Beacon(string uuid, int v) : base()
         {
             this.v = v;
+        }
+
+        /// <summary>
+        /// Get Local by Beacon (beacons constructor)
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <param name="typeName"></param>
+        public Beacon(string uuid, string typeName)
+        {
+            this.UUID = uuid;
+            this.TypeName = TypeName;
         }
         #endregion
 
         #region Methods
-        public async Task<Beacon> Get(string uuid) 
+        public Task<Beacon> Get(string uuid) 
         {
             if (base.DQLCommand(Procedure.pegarBeacon, ref this.Data,
                     new string[,] {
@@ -62,7 +75,7 @@ namespace ReachUp
                 }
                 this.Data.Close();
                 base.Disconnect();
-                return beacon;
+                return Task.FromResult(beacon);
             }
 
             return null;

@@ -224,9 +224,11 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS pegarFeedback$$
-CREATE PROCEDURE pegarFeedback(pFeedback int)
+CREATE PROCEDURE pegarFeedback(pFeedback int, pTipo int)
 BEGIN
-	SELECT * FROM 	feedback WHERE cd_feedback = pFeedback;
+	SELECT * FROM 	feedback 
+    WHERE cd_feedback = pFeedback
+    AND cd_tipo_feedback = pTipo;
 END$$
 
 DROP PROCEDURE IF EXISTS conectarBeacon$$
@@ -495,23 +497,12 @@ DROP PROCEDURE IF EXISTS acessoFeedbacks$$
 CREATE PROCEDURE acessoFeedbacks(pTipo int, dataInicio date , dataFim date, pGeral bool)
 BEGIN
 	IF pGeral = false THEN
-		IF pTipo = 0 THEN
 				SELECT nm_email_cliente, ds_feedback, qt_estrelas_feedback, dt_feedback FROM feedback 
 				WHERE dt_feedback BETWEEN  dataInicio AND dataFim
 				AND cd_tipo_feedback = pTipo;
-		ELSE
-				SELECT nm_email_cliente, ds_feedback,dt_feedback FROM feedback 
-				WHERE dt_feedback BETWEEN  dataInicio AND dataFim
-				AND cd_tipo_feedback = pTipo;
-		END IF;
 	ELSE
-		IF pTipo = 0 THEN
 				SELECT nm_email_cliente, ds_feedback, qt_estrelas_feedback,dt_feedback FROM feedback 
 				WHERE cd_tipo_feedback = pTipo;
-		ELSE
-				SELECT nm_email_cliente, ds_feedback, dt_feedback FROM feedback 
-				WHERE cd_tipo_feedback = pTipo;
-		END IF;
 	END IF;
 END$$
 
@@ -545,11 +536,8 @@ DROP PROCEDURE IF EXISTS pegarLocal$$
 CREATE PROCEDURE pegarLocal(pID INT)
 BEGIN
 	SELECT 
-    l.cd_tipo_local,
-    l.cd_local, tl.nm_tipo_local, l.nm_local, l.cd_andar, 
-	l.hr_abertura, l.hr_fechamento,
-	substring_index(group_concat(DISTINCT c.nm_categoria SEPARATOR ','), ',', 3) as  categorias,
-	b.cd_uuid_beacon AS  Beacons FROM `local` AS l 
+    tl.nm_tipo_local, l.nm_local, l.cd_andar, 
+	group_concat(b.cd_uuid_beacon) AS  Beacons FROM `local` AS l 
 	INNER JOIN tipo_local AS tl
 	ON l.cd_tipo_local = tl.cd_tipo_local
 	INNER JOIN beacon AS b
@@ -563,6 +551,27 @@ BEGIN
 	ON sc.cd_categoria = c.cd_categoria
 	WHERE l.cd_local = pID;
 END$$
+
+DROP PROCEDURE IF EXISTS pegarLocalBeacon$$
+CREATE PROCEDURE pegarLocalBeacon(pBeacon varchar(36))
+BEGIN
+  SELECT l.cd_local, tl.nm_tipo_local, l.nm_local, l.cd_andar, 
+  group_concat(a.nm_email_administrador, a.nm_administrador, ta.nm_tipo_administrador) 
+  as Admins, 
+  group_concat(b.cd_uuid_beacon, tb.nm_tipo_beacon) as Beacons
+  FROM `local` l 
+  INNER JOIN beacon b
+  ON (l.cd_local = b.cd_local)
+  INNER JOIN tipo_beacon tb
+  ON (b.cd_tipo_beacon = tb.cd_tipo_beacon)
+  INNER JOIN tipo_local tl
+  ON (l.cd_tipo_local = tl.cd_tipo_local)
+  INNER JOIN administrador a
+  ON (l.cd_local = a.cd_local)
+  INNER JOIN tipo_administrador ta
+  ON (a.cd_tipo_administrador = ta.nm_tipo_administrador)
+  WHERE b.cd_uuid_beacon = pBeacon;
+END$$ 
 
 DROP PROCEDURE IF EXISTS pegarLocais$$
 CREATE PROCEDURE pegarLocais(pTipo VARCHAR(45))
