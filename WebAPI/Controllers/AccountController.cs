@@ -24,6 +24,7 @@ namespace ReachUpWebAPI.Controllers
         #region Constructor
         public AccountController(IConfiguration Config)
         {
+            
             this.Config = Config;
         }
         #endregion
@@ -32,6 +33,7 @@ namespace ReachUpWebAPI.Controllers
         [HttpGet("Login")]
         public async Task<IActionResult> Login([FromQuery] User user) 
         {
+      
             if (user != null)
                 if (user.Login()) 
                     return Ok(GenerateJSONWebToken(user));
