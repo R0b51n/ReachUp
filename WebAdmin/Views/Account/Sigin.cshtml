@@ -7,16 +7,17 @@
 
 @model User
 
+
 <div id="logreg-forms">
 
     <form asp-action="SiginSubmit" asp-antiforgery="true" method="post" class="form-signin" >
 
         <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">ReachUp | Sign in</h1>
-        <div class="social-login">
+        @*<div class="social-login">
             <button class="btn facebook-btn social-btn" type="button"><span><i class="fab fa-facebook-f"></i> Sign in with Facebook</span> </button>
             <button class="btn google-btn social-btn" type="button"><span><i class="fab fa-google-plus-g"></i> Sign in with Google+</span> </button>
-        </div>
-        <p style="text-align:center"> OR  </p>
+        </div>*@
+     
         <span class="msgError" style="color:red;margin-bottom:5px">@ViewBag.SiginError</span>
         <input asp-for="Email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
         <input asp-for="Password" type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
